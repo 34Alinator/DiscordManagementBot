@@ -17,6 +17,13 @@ def load_json(filename):
     with open(filename, 'r') as f:
         return json.load(f)
     
+# Save JSON data
+def save_json(filename, content):
+    with open(filename, 'w') as f:
+        json.dump(content, f, indent=4)
+
+global_ban_list = load_json('global_ban_list.json')
+
 # Initialize bot
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix='/', intents=intents)
@@ -62,5 +69,28 @@ async def on_ready():
 async def mping(inter: discord.Interaction) -> None:
     await inter.response.send_message(f"> Pong! {round(bot.latency * 1000)}ms")
 
+
+#Global Ban
+@bot.tree.command()
+async def mglobal_ban(inter: discord.Interaction, user: discord.Member = None):
+    user_id = str(user.id)
+    if user_id in global_ban_list:
+        await inter.response.send_message(f"{user} already on GBL")
+    else:
+        global_ban_list.append(user_id)
+        save_json('global_ban_list.json', global_ban_list)
+        await inter.response.send_message(f"{user} successfully put on the GBL")
+
+
+#Global Unban
+@bot.tree.command()
+async def mglobal_unban(inter:discord.Interaction, user: discord.Member = None):
+    user_id = str(user.id)
+    try:
+        global_ban_list.remove(user_id)
+        save_json('global_ban_list.json', global_ban_list)
+        await inter.response.send_message(f"{user} successfully removed from the GBL")
+    except:
+        await inter.response.send_message(f"{user} not found in GBL")
 
 bot.run(TOKEN)
