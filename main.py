@@ -55,3 +55,12 @@ async def sync(ctx: commands.Context, guilds: commands.Greedy[discord.Object], s
 async def on_ready():
     await bot.tree.sync(guild=discord.Object(id=GUILD))
     print(f'{bot.user.name} has connected to Discord!')
+
+# Commands
+#Ping
+@bot.tree.command()
+async def mping(inter: discord.Interaction) -> None:
+    await inter.response.send_message(f"> Pong! {round(bot.latency * 1000)}ms")
+
+
+bot.run(TOKEN)
