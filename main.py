@@ -20,7 +20,7 @@ def load_json(filename):
 def save_json(filename, content):
     with open(filename, 'w') as f:
         json.dump(content, f, indent=4)
-
+admin_list = load_json('admins.json')
 global_ban_list = load_json('global_ban_list.json')
 
 # Initialize bot
@@ -71,46 +71,51 @@ async def mping(inter: discord.Interaction) -> None:
 #Global Ban
 @bot.tree.command()
 async def mglobal_ban(inter: discord.Interaction, user: discord.Member = None):
-    user_id = str(user.id)
-    if user_id in global_ban_list:
-        await inter.response.send_message(f"{user} already on GBL")
+    if str(inter.id) in admin_list:
+        user_id = str(user.id)
+        if user_id in global_ban_list:
+            await inter.response.send_message(f"{user} already on GBL")
+        else:
+            global_ban_list.append(user_id)
+            save_json('global_ban_list.json', global_ban_list)
+            await inter.response.send_message(f"{user} successfully put on the GBL")
     else:
-        global_ban_list.append(user_id)
-        save_json('global_ban_list.json', global_ban_list)
-        await inter.response.send_message(f"{user} successfully put on the GBL")
+        await inter.response.send_message("You dont have permission to ban someone")
 
 
 #Global Unban
 @bot.tree.command()
 async def mglobal_unban(inter:discord.Interaction, user: discord.Member = None):
-    user_id = str(user.id)
-    try:
-        global_ban_list.remove(user_id)
-        save_json('global_ban_list.json', global_ban_list)
-        await inter.response.send_message(f"{user} successfully removed from the GBL")
-    except:
-        await inter.response.send_message(f"{user} not found in GBL")
-
+    if str(inter.id) in admin_list:
+        user_id = str(user.id)
+        try:
+            global_ban_list.remove(user_id)
+            save_json('global_ban_list.json', global_ban_list)
+            await inter.response.send_message(f"{user} successfully removed from the GBL")
+        except:
+            await inter.response.send_message(f"{user} not found in GBL")
+    else:
+        await inter.response.send_message("You dont have permission to unban someone")
 
 #Uphold GBL
-@bot.event
-async def on_member_join(member: discord.member):
-    guild = bot.get_guild(int(GUILD))
-    if guild:
-        print(f"Members in {guild.name}:")
-        for member in guild.members:
-            print(f"{member.id} - {member.name}")
-            if member.id in global_ban_list:
-                await bot.kick(member.name)
+# @bot.event
+# async def on_member_join(member: discord.member):
+#     guild = bot.get_guild(int(GUILD))
+#     if guild:
+#         print(f"Members in {guild.name}:")
+#         for member in guild.members:
+#             print(f"{member.id} - {member.name}")
+#             if member.id in global_ban_list:
+#                 await bot.kick(member.name)
 
 
-@bot.tree.command()
-async def muphold_gbl(inter:discord.Interaction):
-    guild = bot.get_guild(int(GUILD))
-    if guild:
-        print(f"Members in {guild.name}:")
-        for member in guild.members:
-            print(f"{member.id} - {member.name}")
-            if member.id in global_ban_list:
-                await bot.kick(member.name)
+# @bot.tree.command()
+# async def muphold_gbl(inter:discord.Interaction):
+#     guild = bot.get_guild(int(GUILD))
+#     if guild:
+#         print(f"Members in {guild.name}:")
+#         for member in guild.members:
+#             print(f"{member.id} - {member.name}")
+#             if member.id in global_ban_list:
+#                 await bot.kick(member.name)
 bot.run(TOKEN)
