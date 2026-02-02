@@ -30,6 +30,9 @@ Puts user on GBL, puts up an error if the user already is on the GBL
 ### Global Unban:
 /mglobal_unban {user}
 Removes user from GBL, puts up an error if the user is not on the GBL
+### Uphold GBL:
+/muphold_gbl
+Sees if any user ID from the server Members list matches one from the GBL and kicks that one
 
 ## Files
 ### .gitignore

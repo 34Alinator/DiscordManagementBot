@@ -1,13 +1,12 @@
 import os
 import json
 from dotenv import load_dotenv
-from discord.ext import commands
+from discord.ext import commands, tasks
 import discord
 from discord import app_commands
 from typing import Literal, Optional
 
 # Load .env
-
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD = os.getenv('DISCORD_GUILD')
@@ -62,7 +61,6 @@ async def sync(ctx: commands.Context, guilds: commands.Greedy[discord.Object], s
 async def on_ready():
     await bot.tree.sync(guild=discord.Object(id=GUILD))
     print(f'{bot.user.name} has connected to Discord!')
-
 # Commands
 #Ping
 @bot.tree.command()
@@ -93,4 +91,26 @@ async def mglobal_unban(inter:discord.Interaction, user: discord.Member = None):
     except:
         await inter.response.send_message(f"{user} not found in GBL")
 
+
+#Uphold GBL
+@bot.event
+async def on_member_join(member: discord.member):
+    guild = bot.get_guild(int(GUILD))
+    if guild:
+        print(f"Members in {guild.name}:")
+        for member in guild.members:
+            print(f"{member.id} - {member.name}")
+            if member.id in global_ban_list:
+                await bot.kick(member.name)
+
+
+@bot.tree.command()
+async def muphold_gbl(inter:discord.Interaction):
+    guild = bot.get_guild(int(GUILD))
+    if guild:
+        print(f"Members in {guild.name}:")
+        for member in guild.members:
+            print(f"{member.id} - {member.name}")
+            if member.id in global_ban_list:
+                await bot.kick(member.name)
 bot.run(TOKEN)
